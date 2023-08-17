@@ -1,0 +1,61 @@
+<!-- templates/index.html -->
+<body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.10.1/dist/web3.min.js"></script>
+
+
+<button onclick="connectMetaMask()">Connect to MetaMask</button>
+<button onclick="get_ether_balance()">get Ethereum balance</button>
+
+<script>
+    async function connectMetaMask() {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                // 서버에 주소 전송
+                $.ajax({
+                    url: '/store_address',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ "address": accounts[0] }),
+                    success: function(response) {
+                        alert(response.message);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            } catch (error) {
+                alert('User denied account access');
+            }
+        } else {
+            alert('MetaMask is not installed');
+        }
+    }
+    async function get_ether_balance() {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                // 서버에 주소 전송
+                $.ajax({
+                    url: '/get_ether_balance',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ "address": accounts[0] }),
+                    success: function(response) {
+                        alert(response.message);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            } catch (error) {
+                alert('User denied account access');
+            }
+        } else {
+            alert('MetaMask is not installed');
+        }
+        
+    }
+</script>
+</body>
