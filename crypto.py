@@ -44,7 +44,7 @@ if __name__ == "__main__":
     print(f"Current block number: {wallet.current_block()}")
 
     # Get and print ether balance
-    address = "0xE49380d8eCF3010Fd5064A279c4EebFae0FE6cD3"
+    address = "주소입력"
     print(f"Balance of {address} is {wallet.get_ether_balance(address)} ether")
 
     # Get and print USDT balance
