@@ -18,7 +18,10 @@ def store_address():
     global address
     address = request.json.get('address')
     # 여기서 주소를 처리하거나 저장
-    print(f"Connected Ethereum address: {address}")
+    if(address is not None):
+        print(f"Connected Ethereum address: {address}")
+    else:
+        return jsonify({"message": "Not connected to Ethereum Mainnet"})
     #send message to client then redirect to index
     return jsonify({"message": "Connected to Ethereum Mainnet"})
 
@@ -35,7 +38,16 @@ def check_connection():
 def get_ether_balance():
     global address
     if(address is not None):
-        return jsonify({"balance": str(wallet.get_ether_balance(address))})
+        address=wallet.w3.to_checksum_address(address)
+        return jsonify({"message": str(wallet.get_ether_balance(address))+" ether"})
+    return jsonify({"message": "Not connected to Ethereum Mainnet"})
+#get_tether_balance
+@app.route('/get_tether_balance', methods=['POST'])
+def get_tether_balance():
+    global address
+    if(address is not None):
+        address=wallet.w3.to_checksum_address(address)
+        return jsonify({"message": str(wallet.get_usdt_balance(address))+" USDT"})
     return jsonify({"message": "Not connected to Ethereum Mainnet"})
 if __name__ == '__main__':
     app.run(debug=True)

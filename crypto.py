@@ -1,17 +1,17 @@
 import json
-from web3 import Web3
+from web3 import Web3, exceptions
 
 class EthereumWallet:
     def __init__(self, provider_url, contract_abi_file, contract_address):
         self.w3 = Web3(Web3.HTTPProvider(provider_url))
         self.USDT_address = contract_address
-        
+
         with open(contract_abi_file) as f:
             usdt_abi = json.load(f)
-        
+
         self.USDT_ABI = usdt_abi
         self.usdt_contract = self.w3.eth.contract(address=self.USDT_address, abi=self.USDT_ABI)
-        
+
     def is_connected(self):
         return self.w3.is_connected()
 
@@ -19,13 +19,43 @@ class EthereumWallet:
         return self.w3.eth.block_number
 
     def get_ether_balance(self, address):
-        #address to upper case
         balance = self.w3.eth.get_balance(address)
-        
         return self.w3.from_wei(balance, "ether")
 
     def get_usdt_balance(self, address):
+        address = Web3.to_checksum_address(address)
         return self.usdt_contract.functions.balanceOf(address).call()
+
+    import json
+from web3 import Web3, exceptions
+
+class EthereumWallet:
+    def __init__(self, provider_url, contract_abi_file, contract_address):
+        self.w3 = Web3(Web3.HTTPProvider(provider_url))
+        self.USDT_address = contract_address
+
+        with open(contract_abi_file) as f:
+            usdt_abi = json.load(f)
+
+        self.USDT_ABI = usdt_abi
+        self.usdt_contract = self.w3.eth.contract(address=self.USDT_address, abi=self.USDT_ABI)
+
+    def is_connected(self):
+        return self.w3.is_connected()
+
+    def current_block(self):
+        return self.w3.eth.block_number
+
+    def get_ether_balance(self, address):
+        balance = self.w3.eth.get_balance(address)
+        return self.w3.from_wei(balance, "ether")
+
+    def get_usdt_balance(self, address):
+        address = Web3.to_checksum_address(address)
+        return self.usdt_contract.functions.balanceOf(address).call()
+
+
+
 
 if __name__ == "__main__":
     wallet = EthereumWallet(
