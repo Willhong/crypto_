@@ -52,7 +52,35 @@ class EthereumWallet:
 
     def get_usdt_balance(self, address):
         address = Web3.to_checksum_address(address)
-        return self.usdt_contract.functions.balanceOf(address).call()
+        balance= self.usdt_contract.functions.balanceOf(address).call()
+        return self.w3.from_wei(balance, "mwei")
+    
+    def send_ether(self, from_address, private_key, to_address, amount_in_ether):
+        # Convert Ether amount to Wei
+        amount_in_wei = self.w3.to_wei(amount_in_ether, 'ether')
+
+        # Get the current gas price
+        current_gas_price_wei = self.w3.eth.gas_price
+
+        # Construct a transaction
+        transaction = {
+            'to': to_address,
+            'value': amount_in_wei,
+            'gas': 2000000,
+            'gasPrice': current_gas_price_wei,  # Use the real-time gas price here
+            'nonce': self.w3.eth.get_transaction_count(from_address),
+            'chainId': 1  # 1 for mainnet, 3 for Ropsten, 4 for Rinkeby, etc.
+        }
+
+        # Sign the transaction
+        signed_transaction = self.w3.eth.account.sign_transaction(transaction, private_key)
+
+        # Send the transaction
+        try:
+            tx_hash = self.w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
+            return tx_hash.hex()
+        except exceptions.TransactionNotFound:
+            return "Error: Transaction not found"
 
 
 

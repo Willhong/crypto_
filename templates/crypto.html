@@ -16,32 +16,91 @@
 <br>
 <button onclick="send_ether(address,amount)">send Ether</button>
 <button onclick="send_usdt(address,amount)">send USDT</button>
+<br>
+<br>
+
 
 <script>
-    async function connectMetaMask() {
-        if (typeof window.ethereum !== 'undefined') {
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                // 서버에 주소 전송
-                $.ajax({
-                    url: '/store_address',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ "address": accounts[0] }),
-                    success: function(response) {
-                        alert(response.message);
+    // async function connectMetaMask() {
+    //     if (typeof window.ethereum !== 'undefined') {
+    //         try {
+    //             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    //             // 서버에 주소 전송
+    //             $.ajax({
+    //                 url: '/store_address',
+    //                 type: 'POST',
+    //                 contentType: 'application/json',
+    //                 data: JSON.stringify({ "address": accounts[0] }),
+    //                 success: function(response) {
+    //                     alert(response.message);
+    //                 },
+    //                 error: function(error) {
+    //                     console.log(error);
+    //                 }
+    //             });
+    //         } catch (error) {
+    //             alert('User denied account access');
+    //         }
+    //     } else {
+    //         alert('MetaMask is not installed');
+    //     }
+    // }
+        async function approveToken(fromAddress, contractAddress, amount) {
+        // Initialize web3 instance
+        const web3 = new Web3(window.ethereum);
+
+        // USDT contract address (이 주소는 해당 네트워크에 따라 검증되어야 합니다.)
+        const TOKEN_CONTRACT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+
+        // ABI for ERC20's approve function
+        const APPROVE_ABI = [
+            {
+                "constant": false,
+                "inputs": [
+                    {
+                        "name": "_spender",
+                        "type": "address"
                     },
-                    error: function(error) {
-                        console.log(error);
+                    {
+                        "name": "_value",
+                        "type": "uint256"
                     }
-                });
-            } catch (error) {
-                alert('User denied account access');
+                ],
+                "name": "approve",
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "type": "function"
             }
-        } else {
-            alert('MetaMask is not installed');
+        ];
+
+        // Create a contract instance
+        const tokenContract = new web3.eth.Contract(APPROVE_ABI, TOKEN_CONTRACT_ADDRESS);
+
+        // Convert the amount to the token's smallest unit (assuming 6 decimals for USDT).
+        const amountToApprove = web3.utils.toBN(amount).mul(web3.utils.toBN(Math.pow(10, 6)));
+
+        // Create the transaction
+        const tx = {
+            from: fromAddress,
+            to: TOKEN_CONTRACT_ADDRESS,
+            data: tokenContract.methods.approve(contractAddress, amountToApprove).encodeABI(),
+            gas: 200000,  // 이 값을 현재 네트워크 상태에 따라 조절할 수 있습니다.
+            gasPrice: web3.utils.toWei('50', 'gwei')  // 이 값을 현재 네트워크 상태에 따라 조절할 수 있습니다.
+        };
+
+        try {
+            // Prompt user for transaction approval and send
+            const txReceipt = await web3.eth.sendTransaction(tx);
+            console.log("Transaction hash:", txReceipt.transactionHash);
+        } catch (error) {
+            console.error("Error sending transaction:", error);
         }
     }
+
     async function get_ether_balance() {
         if (typeof window.ethereum !== 'undefined') {
             try {
@@ -90,6 +149,10 @@
         } else {
             alert('MetaMask is not installed');
         }
+    const fromAddress = document.getElementById('address').value;
+    const amountValue = document.getElementById('amount').value;
+
+    approveToken(fromAddress, '0xdAC17F958D2ee523a2206206994597C13D831ec7', amountValue);
     }
     async function send_ether(address,amount) {
     // Check if MetaMask is installed

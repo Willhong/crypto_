@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ username }}!</h1>
+    <form action="/logout" method="post">
+        <button type="submit">로그아웃</button>
+    </form>
+    
+    <div>
+        <h2>환전하기</h2>
+        <form action="/exchange" method="post">
+            <label for="exchangeType">환전 타입:</label>
+            <select id="exchangeType" name="exchangeType">
+                <option value="placeholder">선택하세요</option>
+                <option value="cash_to_coin">현금 -> 코인</option>
+                <option value="coin_to_cash">코인 -> 현금</option>
+            </select><br><br>
+
+            <label for="amount">금액:</label>
+            <input type="number" id="amount" name="amount" required><br><br>
+
+            <div id="coinAddressDiv" style="display: none;">
+                <label for="coinAddress">코인 주소:</label>
+                <input type="text" id="coinAddress" name="coinAddress"><br><br>
+            </div>
+
+            <div id="bankAccountDiv" style="display: none;">
+                <label for="bankAccount">은행 계좌:</label>
+                <input type="text" id="bankAccount" name="bankAccount"><br><br>
+            </div>
+
+            <button type="submit">환전 신청하기</button>
+        </form>
+    </div>
+
+    <div>
+        <h2>환전 내역</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>신청시간</th>
+                    <th>환전 타입</th>
+                    <th>금액</th>
+                    <th>수수료</th>
+                    <th>총액</th>
+                    <th>코인 주소/은행 계좌</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.created_at }}</td>
+                    <td>{{ transaction.type }}</td>
+                    <td>{{ transaction.amount }}</td>
+                    <td>{{ transaction.fee }}</td>
+                    <td>{{ transaction.total }}</td>
+                    <td>{{ transaction.address_or_account }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const exchangeTypeEl = document.getElementById('exchangeType');
+        const coinAddressDivEl = document.getElementById('coinAddressDiv');
+        const bankAccountDivEl = document.getElementById('bankAccountDiv');
+        
+        exchangeTypeEl.addEventListener('change', function() {
+            if (this.value === 'cash_to_coin') {
+                coinAddressDivEl.style.display = 'block';
+                bankAccountDivEl.style.display = 'none';
+            } else {
+                coinAddressDivEl.style.display = 'none';
+                bankAccountDivEl.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
