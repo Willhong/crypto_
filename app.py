@@ -1,7 +1,6 @@
 from datetime import timedelta
 from flask import Flask, redirect, render_template, request, jsonify, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-
 import crypto
 app = Flask(__name__, instance_relative_config=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -46,6 +45,8 @@ def create_db():
 
 @app.route('/')
 def index():
+    if session.get('username'):
+        return redirect(url_for('dashboard'))
     return render_template('login.html')
 
 @app.route('/login', methods=['POST','GET'])
@@ -83,9 +84,9 @@ def register():
             db.session.commit()
         except:
             return render_template('alert.html', message="Username or email already exists", url=url_for('register'))
-        session['username~'] = username
+        session['username'] = username
 
-        return redirect(url_for('dashboard' ))
+        return redirect(url_for('dashboard'))
     return render_template('signup.html')
 
 @app.route('/dashboard', methods=['POST','GET'])
@@ -94,7 +95,11 @@ def dashboard():
     if not username:
         return redirect(url_for('login'))
     #get transactions from db
-    transactions = Transaction.query.filter_by(user_id=User.query.filter_by(username=username).first().id).all()
+    try:
+        transactions = Transaction.query.filter_by(user_id=User.query.filter_by(username=username).first().id).all()
+    except:
+        session.pop('username', None)
+        return render_template('alert.html', message="No transactions found", url=url_for('dashboard'))
     #change timezone to korea
     for transaction in transactions:
        transaction.created_at+=timedelta(hours=9)
