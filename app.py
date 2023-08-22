@@ -58,6 +58,8 @@ def login():
         user = User.query.filter_by(username=username, password=password).first()
         if user is not None:
             session['username'] = username
+            if username == 'admin':
+                return redirect(url_for('admin'))
             return redirect(url_for('dashboard' ))
 
         else:
@@ -136,7 +138,7 @@ def exchange():
 
 @app.route('/admin')
 def admin():
-    return render_template('admin.html')
+    return render_template('admin.html', users=User.query.all(), transactions=Transaction.query.all())
 
 @app.route('/crypto')
 def crypto():
