@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <h1>Welcome, {{ username }}!</h1>
@@ -11,6 +12,7 @@
     
     <div>
         <h2>환전하기</h2>
+        <h1>현재 USDT 가격: <span id="usdt-price"></span> KRW</h1>
         <form action="/exchange" method="post">
             <label for="exchangeType">환전 타입:</label>
             <select id="exchangeType" name="exchangeType">
@@ -63,6 +65,7 @@
             </tbody>
         </table>
     </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>
         const exchangeTypeEl = document.getElementById('exchangeType');
         const coinAddressDivEl = document.getElementById('coinAddressDiv');
@@ -77,6 +80,7 @@
                 bankAccountDivEl.style.display = 'block';
             }
         });
+        
     </script>
 </body>
 </html>

@@ -103,6 +103,8 @@ def dashboard():
     #change timezone to korea
     for transaction in transactions:
        transaction.created_at+=timedelta(hours=9)
+       transaction.amount=round(transaction.amount,2)
+       transaction.fee=round(transaction.fee,2)
        
     if request.method == 'POST':
         username = request.json.get('username')
